@@ -1,6 +1,0 @@
-@RESTfullBankAPI_HostAddress = http://localhost:5007
-
-GET {{RESTfullBankAPI_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

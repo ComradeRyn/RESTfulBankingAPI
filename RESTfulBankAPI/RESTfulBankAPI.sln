@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RESTfullBankAPI", "RESTfullBankAPI.csproj", "{3EBA9458-D313-4E39-9150-D1A4775E944A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RESTfulBankAPI", "RESTfulBankAPI.csproj", "{3EBA9458-D313-4E39-9150-D1A4775E944A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
