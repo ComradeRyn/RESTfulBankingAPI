@@ -1,6 +1,6 @@
 ﻿namespace RESTfulBankAPI.Exceptions;
 
-public class InsufficentFundsException
+public class InsufficientFundsException
 {
     
 }
