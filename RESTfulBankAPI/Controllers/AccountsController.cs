@@ -7,25 +7,38 @@ namespace RESTfullBankAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountsController : ControllerBase
+    public class AccountsController(AccountsService services) : ControllerBase
     {
-        private readonly AccountsService _services;
-
-        public AccountsController(AccountsService services)
-        {
-            _services = services;
-        }
+        private readonly AccountsService _services = services;
 
         [HttpPost]
         public async Task<ActionResult<Account>> PostAccount(CreationRequest request)
         {
-            return null;
+            try
+            {
+                var createdAccount = _services.CreateAccount(request);
+                
+                return CreatedAtAction(nameof(GetAccount), new{id = createdAccount.Id}, createdAccount);
+            }
+            
+            catch(ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Account>> GetAccount(Guid id)
         {
-            return null;
+            try
+            {
+                return _services.GetAccount(id);
+            }
+
+            catch (ArgumentException e)
+            {
+                return NotFound(e.Message);
+            }
         }
 
         [HttpPost("{id}/deposits")]

@@ -9,6 +9,7 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AccountContext>(opt => opt.UseInMemoryDatabase("AccountList"));
+builder.Services.AddScoped<RESTfullBankAPI.Services.AccountsService>();
 
 var app = builder.Build();
 
