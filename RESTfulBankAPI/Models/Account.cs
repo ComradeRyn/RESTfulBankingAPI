@@ -1,9 +1,12 @@
-﻿namespace RESTfulBankAPI.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace RESTfulBankAPI.Models;
 
 public class Account
 {
-    public Guid Id { get; init; } = Guid.NewGuid();
-    // Should I restrict the string length?
+    
+    public string Id { get; init; } = Guid.NewGuid().ToString();
+    [MaxLength(50)]
     public required string HolderName{ get; init; }
     public decimal Balance { get; set; }
 }

@@ -1,20 +1,25 @@
 ﻿using RESTfulBankAPI.Models;
 using RESTfulBankAPI.Models.Records;
+using RESTfulBankAPI.Exceptions;
 
 namespace RESTfulBankAPI.Services;
 
-public class AccountsService(AccountContext context)
+public class AccountsService
 {
-    // Should I follow what rider is suggesting?
-    private readonly AccountContext _context = context;
+    private readonly AccountContext _context;
 
-    public Account GetAccount(Guid id)
+    public AccountsService(AccountContext context)
+    {
+        _context = context;
+    }
+
+    public Account GetAccount(string id)
     {
         var queriedAccount = _context.Accounts.Find(id);
 
         if (queriedAccount == null)
         {
-            throw new ArgumentException("No user found with given id", nameof(id));
+            throw new AccountNotFoundException("No user found with given id", nameof(id));
         }
         
         return queriedAccount;
@@ -24,7 +29,8 @@ public class AccountsService(AccountContext context)
     {
         if (!ValidateName(request.Name))
         {
-            throw new ArgumentException("Name must be in the format of <first name> <second name> <...> <last name>", 
+            throw new ArgumentException("Name must be at most 50 characters and " +
+                                        "in the format of <first name> <second name> <...> <last name>", 
                 nameof(request));
         }
 
@@ -35,7 +41,7 @@ public class AccountsService(AccountContext context)
         return newAccount;
     }
 
-    public decimal Deposit(Guid id, ChangeBalanceRequest request)
+    public decimal Deposit(string id, ChangeBalanceRequest request)
     {
         var queriedAccount = GetAccount(id);
         PreformDeposit(queriedAccount, request.Amount);
@@ -43,7 +49,7 @@ public class AccountsService(AccountContext context)
         return queriedAccount.Balance;
     }
 
-    public decimal Withdraw(Guid id, ChangeBalanceRequest request)
+    public decimal Withdraw(string id, ChangeBalanceRequest request)
     {
         var queriedAccount = GetAccount(id);
         PreformWithdraw(queriedAccount, request.Amount);
@@ -66,14 +72,14 @@ public class AccountsService(AccountContext context)
     {
         var nameTokens = accountName.Split(" ");
         
-        return nameTokens.All(name => name.All(char.IsLetter) && name != "");
+        return accountName.Length <= 50 && nameTokens.All(name => name.All(char.IsLetter) && name != "");
     }
 
     private void PreformDeposit(Account account, decimal amount)
     {
         if (amount <= 0)
         {
-            throw new ArgumentException("Requested amount must be positive", nameof(amount));
+            throw new NegativeAmountException("Requested amount must be positive", nameof(amount));
         }
         
         account.Balance += amount;
@@ -84,12 +90,12 @@ public class AccountsService(AccountContext context)
     {
         if (amount <= 0)
         {
-            throw new ArgumentException("Requested amount must be positive", nameof(amount));
+            throw new NegativeAmountException("Requested amount must be positive", nameof(amount));
         }
 
         if (amount > account.Balance)
         {
-            throw new ArgumentException("Requested amount must be less than or equal to current balance", 
+            throw new InsufficientFundsException("Requested amount must be less than or equal to current balance",
                 nameof(amount));
         }
 

@@ -2,22 +2,33 @@ using Microsoft.AspNetCore.Mvc;
 using RESTfulBankAPI.Models;
 using RESTfulBankAPI.Models.Records;
 using RESTfulBankAPI.Services;
+using RESTfulBankAPI.Exceptions;
 
 namespace RESTfulBankAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/accounts")]
     [ApiController]
-    public class AccountsController(AccountsService services) : ControllerBase
+    public class AccountsController : ControllerBase
     {
-        private readonly AccountsService _services = services;
+        private readonly AccountsService _service;
 
+        public AccountsController(AccountsService service)
+        {
+            _service = service;
+        }
+
+        /// <summary>
+        /// Creates a new Account with the provided name given the name follows the required parameters
+        /// </summary>
+        /// <param name="request">A record which contains a string Name for the new account</param>
+        /// <returns>The information of the generated account</returns>
         [HttpPost]
         [Produces("application/json")]
         public ActionResult<Account> PostAccount(CreationRequest request)
         {
             try
             {
-                var createdAccount = _services.CreateAccount(request);
+                var createdAccount = _service.CreateAccount(request);
                 
                 return CreatedAtAction(nameof(GetAccount), new{id = createdAccount.Id}, createdAccount);
             }
@@ -27,66 +38,100 @@ namespace RESTfulBankAPI.Controllers
                 return BadRequest(e.Message);
             }
         }
-
-        // Should I include the parameter constraint?
+        
+        /// <summary>
+        /// Retrieves an account based off a given Id
+        /// </summary>
+        /// <param name="id">The unique identification for the requested account</param>
+        /// <returns>The account information corresponding to the id</returns>
         [HttpGet("{id}")]
         [Produces("application/json")]
-        public ActionResult<Account> GetAccount(Guid id)
+        public ActionResult<Account> GetAccount(string id)
         {
             try
             {
-                return _services.GetAccount(id);
+                return _service.GetAccount(id);
             }
 
-            catch (ArgumentException e)
+            catch (AccountNotFoundException e)
             {
                 return NotFound(e.Message);
             }
         }
-
+        
+        /// <summary>
+        /// Adds an entered money amount to a requested account
+        /// </summary>
+        /// <param name="id">The unique identification for the requested account</param>
+        /// <param name="request">A record which contains the money amount that will be deposited</param>
+        /// <returns>A message stating the new account balance</returns>
         [HttpPost("{id}/deposits")]
         [Produces("application/json")]
-        public IActionResult PostDeposit(Guid id, ChangeBalanceRequest request)
+        public IActionResult PostDeposit(string id, ChangeBalanceRequest request)
         {
             try
             {
-                // What type of success should I return?
-                return Ok($"new balance of {_services.Deposit(id, request)}");
+                return Ok($"new balance of ${_service.Deposit(id, request)}");
             }
             
-            // Question: how could I split up the exceptions
-            // Currently two: Not found and bad request
-            catch (ArgumentException e)
+            catch (AccountNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+
+            catch (NegativeAmountException e)
             {
                 return BadRequest(e.Message);
             }
         }
-
+        
+        /// <summary>
+        /// Subtracts an entered money amount to a requested account
+        /// </summary>
+        /// <param name="id">The unique identification for the requested account</param>
+        /// <param name="request">A record which contains the money amount that will be withdrawn</param>
+        /// <returns>A message stating the new account balance</returns>
         [HttpPost("{id}/withdraws")]
         [Produces("application/json")]
-        public IActionResult PostWithdraw(Guid id, ChangeBalanceRequest request)
+        public IActionResult PostWithdraw(string id, ChangeBalanceRequest request)
         {
             try
             {
-                return Ok($"new balance of {_services.Withdraw(id, request)}");
+                return Ok($"new balance of ${_service.Withdraw(id, request)}");
             }
 
-            catch (ArgumentException e)
+            catch (AccountNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+
+            catch (Exception e) when (e is InsufficientFundsException or NegativeAmountException)
             {
                 return BadRequest(e.Message);
             }
         }
 
+        /// <summary>
+        /// Takes money from one account and moves it to another
+        /// </summary>
+        /// <param name="request">A record that contains an id for the sending account, an id for the receiving
+        /// account, along with the money amount that will be transferred</param>
+        /// <returns>A message saying the receiver's new account balance</returns>
         [HttpPost("transfers")]
         [Produces("application/json")]
         public IActionResult PostTransfer(TransferRequest request)
         {
             try
             {
-                return Ok($"new balance of {_services.Transfer(request)}");
+                return Ok($"new receiver balance of ${_service.Transfer(request)}");
             }
 
-            catch (ArgumentException e)
+            catch (AccountNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+
+            catch (Exception e) when (e is InsufficientFundsException or NegativeAmountException)
             {
                 return BadRequest(e.Message);
             }

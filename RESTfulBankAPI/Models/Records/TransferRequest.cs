@@ -1,8 +1,8 @@
 ﻿namespace RESTfulBankAPI.Models.Records;
 
-public record TransferRequest()
+public record TransferRequest
 {
     public decimal Amount { get; init; }
-    public Guid SenderId { get; init; }
-    public Guid ReceiverId { get; init; }
+    public required string SenderId { get; init; }
+    public required string ReceiverId { get; init; }
 }
