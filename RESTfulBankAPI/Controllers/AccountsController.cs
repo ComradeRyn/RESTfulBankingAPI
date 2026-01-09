@@ -12,7 +12,8 @@ namespace RESTfulBankAPI.Controllers
         private readonly AccountsService _services = services;
 
         [HttpPost]
-        public async Task<ActionResult<Account>> PostAccount(CreationRequest request)
+        [Produces("application/json")]
+        public ActionResult<Account> PostAccount(CreationRequest request)
         {
             try
             {
@@ -29,7 +30,8 @@ namespace RESTfulBankAPI.Controllers
 
         // Should I include the parameter constraint?
         [HttpGet("{id}")]
-        public async Task<ActionResult<Account>> GetAccount(Guid id)
+        [Produces("application/json")]
+        public ActionResult<Account> GetAccount(Guid id)
         {
             try
             {
@@ -43,7 +45,8 @@ namespace RESTfulBankAPI.Controllers
         }
 
         [HttpPost("{id}/deposits")]
-        public async Task<IActionResult> PostDeposit(Guid id, ChangeBalanceRequest request)
+        [Produces("application/json")]
+        public IActionResult PostDeposit(Guid id, ChangeBalanceRequest request)
         {
             try
             {
@@ -60,7 +63,8 @@ namespace RESTfulBankAPI.Controllers
         }
 
         [HttpPost("{id}/withdraws")]
-        public async Task<IActionResult> PostWithdraw(Guid id, ChangeBalanceRequest request)
+        [Produces("application/json")]
+        public IActionResult PostWithdraw(Guid id, ChangeBalanceRequest request)
         {
             try
             {
@@ -74,7 +78,8 @@ namespace RESTfulBankAPI.Controllers
         }
 
         [HttpPost("transfers")]
-        public async Task<IActionResult> PostTransfer(TransferRequest request)
+        [Produces("application/json")]
+        public IActionResult PostTransfer(TransferRequest request)
         {
             try
             {
