@@ -2,5 +2,5 @@
 
 public record ChangeBalanceRequest()
 {
-    public required decimal Amount { get; set; }
+    public required decimal Amount { get; init; }
 }

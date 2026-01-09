@@ -62,8 +62,8 @@ public class AccountsService(AccountContext context)
         var receiver = GetAccount(request.ReceiverId);
         var sender = GetAccount(request.SenderId);
 
-        Withdraw(receiver, request.Amount);
-        Deposit(sender, request.Amount);
+        Withdraw(sender, request.Amount);
+        Deposit(receiver, request.Amount);
 
         return receiver.Balance;
     }

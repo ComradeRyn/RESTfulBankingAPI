@@ -44,19 +44,52 @@ namespace RESTfullBankAPI.Controllers
         [HttpPost("{id}/deposits")]
         public async Task<IActionResult> PostDeposit(Guid id, ChangeBalanceRequest request)
         {
-            return null;
+            try
+            {
+                var message = $"new balance of {_services.Deposit(id, request)}";
+                
+                // What type of success should I return?
+                return Ok(message);
+            }
+            
+            // Question: how could I split up the exceptions
+            // Currently two: Not found and bad request
+            catch (ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost("{id}/withdraws")]
         public async Task<IActionResult> PostWithdraw(Guid id, ChangeBalanceRequest request)
         {
-            return null;
+            try
+            {
+                var message = $"new balance of {_services.Withdraw(id, request)}";
+
+                return Ok(message);
+            }
+
+            catch (ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost("transfers")]
         public async Task<IActionResult> PostTransfer(TransferRequest request)
         {
-            return null;
+            try
+            {
+                var message = $"new balance of {_services.Transfer(request)}";
+
+                return Ok(message);
+            }
+
+            catch (ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }
