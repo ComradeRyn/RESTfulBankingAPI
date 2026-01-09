@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using RESTfullBankAPI.Models;
-using RESTfullBankAPI.Models.Records;
-using RESTfullBankAPI.Services;
+using RESTfulBankAPI.Models;
+using RESTfulBankAPI.Models.Records;
+using RESTfulBankAPI.Services;
 
-namespace RESTfullBankAPI.Controllers
+namespace RESTfulBankAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -27,6 +27,7 @@ namespace RESTfullBankAPI.Controllers
             }
         }
 
+        // Should I include the parameter constraint?
         [HttpGet("{id}")]
         public async Task<ActionResult<Account>> GetAccount(Guid id)
         {
@@ -46,10 +47,8 @@ namespace RESTfullBankAPI.Controllers
         {
             try
             {
-                var message = $"new balance of {_services.Deposit(id, request)}";
-                
                 // What type of success should I return?
-                return Ok(message);
+                return Ok($"new balance of {_services.Deposit(id, request)}");
             }
             
             // Question: how could I split up the exceptions
@@ -65,9 +64,7 @@ namespace RESTfullBankAPI.Controllers
         {
             try
             {
-                var message = $"new balance of {_services.Withdraw(id, request)}";
-
-                return Ok(message);
+                return Ok($"new balance of {_services.Withdraw(id, request)}");
             }
 
             catch (ArgumentException e)
@@ -81,9 +78,7 @@ namespace RESTfullBankAPI.Controllers
         {
             try
             {
-                var message = $"new balance of {_services.Transfer(request)}";
-
-                return Ok(message);
+                return Ok($"new balance of {_services.Transfer(request)}");
             }
 
             catch (ArgumentException e)

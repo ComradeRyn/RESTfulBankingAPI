@@ -1,16 +1,10 @@
-﻿using RESTfullBankAPI.Models;
-using RESTfullBankAPI.Models.Records;
+﻿using RESTfulBankAPI.Models;
+using RESTfulBankAPI.Models.Records;
 
-namespace RESTfullBankAPI.Services;
+namespace RESTfulBankAPI.Services;
 
 public class AccountsService(AccountContext context)
 {
-    /* Db Notes:
-     * _context.Accounts.Add(item) adds and item
-     * await _context.SaveChangesAsync() saves the changes
-     * await _context.Accounts.FindAsync(id) finds the Account with an id
-     */
-    
     // Should I follow what rider is suggesting?
     private readonly AccountContext _context = context;
 
@@ -44,7 +38,7 @@ public class AccountsService(AccountContext context)
     public decimal Deposit(Guid id, ChangeBalanceRequest request)
     {
         var queriedAccount = GetAccount(id);
-        Deposit(queriedAccount, request.Amount);
+        PreformDeposit(queriedAccount, request.Amount);
         
         return queriedAccount.Balance;
     }
@@ -52,7 +46,7 @@ public class AccountsService(AccountContext context)
     public decimal Withdraw(Guid id, ChangeBalanceRequest request)
     {
         var queriedAccount = GetAccount(id);
-        Withdraw(queriedAccount, request.Amount);
+        PreformWithdraw(queriedAccount, request.Amount);
         
         return queriedAccount.Balance;
     }
@@ -62,8 +56,8 @@ public class AccountsService(AccountContext context)
         var receiver = GetAccount(request.ReceiverId);
         var sender = GetAccount(request.SenderId);
 
-        Withdraw(sender, request.Amount);
-        Deposit(receiver, request.Amount);
+        PreformWithdraw(sender, request.Amount);
+        PreformDeposit(receiver, request.Amount);
 
         return receiver.Balance;
     }
@@ -75,7 +69,7 @@ public class AccountsService(AccountContext context)
         return nameTokens.All(name => name.All(char.IsLetter) && name != "");
     }
 
-    private void Deposit(Account account, decimal amount)
+    private void PreformDeposit(Account account, decimal amount)
     {
         if (amount <= 0)
         {
@@ -86,7 +80,7 @@ public class AccountsService(AccountContext context)
         _context.SaveChanges();
     }
 
-    private void Withdraw(Account account, decimal amount)
+    private void PreformWithdraw(Account account, decimal amount)
     {
         if (amount <= 0)
         {

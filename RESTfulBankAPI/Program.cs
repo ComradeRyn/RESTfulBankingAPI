@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using RESTfullBankAPI.Models;
+using RESTfulBankAPI.Models;
+using RESTfulBankAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +10,7 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AccountContext>(opt => opt.UseInMemoryDatabase("AccountList"));
-builder.Services.AddScoped<RESTfullBankAPI.Services.AccountsService>();
+builder.Services.AddScoped<AccountsService>();
 
 var app = builder.Build();
 

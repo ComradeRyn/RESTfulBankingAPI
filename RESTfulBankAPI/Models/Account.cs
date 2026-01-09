@@ -1,4 +1,4 @@
-﻿namespace RESTfullBankAPI.Models;
+﻿namespace RESTfulBankAPI.Models;
 
 public class Account()
 {

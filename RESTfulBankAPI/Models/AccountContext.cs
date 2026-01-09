@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace RESTfullBankAPI.Models;
+namespace RESTfulBankAPI.Models;
 
 public class AccountContext(DbContextOptions<AccountContext> options) : DbContext(options)
 {

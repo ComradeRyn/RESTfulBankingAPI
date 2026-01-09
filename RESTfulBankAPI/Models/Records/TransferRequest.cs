@@ -1,4 +1,4 @@
-﻿namespace RESTfullBankAPI.Models.Records;
+﻿namespace RESTfulBankAPI.Models.Records;
 
 public record TransferRequest()
 {
