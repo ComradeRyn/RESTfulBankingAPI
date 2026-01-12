@@ -18,7 +18,7 @@ public class AccountsService
     {
         var queriedAccount = await _context.Accounts.FindAsync(id);
 
-        if (queriedAccount == null)
+        if (queriedAccount is null)
         {
             throw new AccountNotFoundException("No user found with given id", nameof(id));
         }
@@ -28,11 +28,7 @@ public class AccountsService
 
     public async Task<Account> CreateAccount(CreationRequest request)
     {
-        if (!ValidateName(request.Name))
-        {
-            throw new ArgumentException("in the format of <first name> <second name> <...> <last name>", 
-                                        nameof(request));
-        }
+        ValidateName(request.Name);
 
         var newAccount = new Account(){HolderName = request.Name};
         
@@ -46,7 +42,11 @@ public class AccountsService
     {
         var queriedAccount = await GetAccount(id);
         
-        await PreformDeposit(queriedAccount, request.Amount);
+        ValidatePositiveAmount(request.Amount);
+        
+        queriedAccount.Balance += request.Amount;
+        
+        await _context.SaveChangesAsync();
         
         return queriedAccount.Balance;
     }
@@ -55,56 +55,57 @@ public class AccountsService
     {
         var queriedAccount = await GetAccount(id);
         
-        await PreformWithdraw(queriedAccount, request.Amount);
+        ValidatePositiveAmount(request.Amount);
+        ValidateSufficientBalance(queriedAccount.Balance, request.Amount);
+        
+        queriedAccount.Balance -= request.Amount;
+        
+        await _context.SaveChangesAsync();
         
         return queriedAccount.Balance;
     }
-
+    
     public async Task<decimal> Transfer(TransferRequest request)
     {
         var receiver = await GetAccount(request.ReceiverId);
         var sender = await GetAccount(request.SenderId);
 
-        await PreformWithdraw(sender, request.Amount);
-        await PreformDeposit(receiver, request.Amount);
+        ValidatePositiveAmount(request.Amount);
+        ValidateSufficientBalance(sender.Balance, request.Amount);
+
+        sender.Balance -= request.Amount;
+        receiver.Balance += request.Amount;
+        
+        await _context.SaveChangesAsync();
 
         return receiver.Balance;
     }
     
-    private bool ValidateName(string accountName)
+    private void ValidateName(string accountName)
     {
         var nameRegex = new Regex(@"^([^\d\s]+\s?)+$");
-        
-        return nameRegex.IsMatch(accountName);
+
+        if (!nameRegex.IsMatch(accountName))
+        {
+            throw new ArgumentException("Name must be in the format of <first name> <second name> <...> <last name>", 
+                nameof(accountName));
+        }
     }
 
-    private async Task PreformDeposit(Account account, decimal amount)
+    private void ValidatePositiveAmount(decimal amount)
     {
         if (amount <= 0)
         {
             throw new NegativeAmountException("Requested amount must be positive", nameof(amount));
         }
-        
-        account.Balance += amount;
-        
-        await _context.SaveChangesAsync();
     }
 
-    private async Task PreformWithdraw(Account account, decimal amount)
+    private void ValidateSufficientBalance(decimal balance, decimal amount)
     {
-        if (amount <= 0)
-        {
-            throw new NegativeAmountException("Requested amount must be positive", nameof(amount));
-        }
-
-        if (amount > account.Balance)
+        if (amount > balance)
         {
             throw new InsufficientFundsException("Requested amount must be less than or equal to current balance",
                 nameof(amount));
         }
-
-        account.Balance -= amount;
-        
-        await _context.SaveChangesAsync();
     }
 }

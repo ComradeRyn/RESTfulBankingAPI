@@ -1,6 +1,3 @@
 ﻿namespace RESTfulBankAPI.Models.Records;
 
-public record CreationRequest
-{
-    public required string Name { get; init; }
-}
+public record CreationRequest(string Name);
