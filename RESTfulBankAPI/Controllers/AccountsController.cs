@@ -32,7 +32,6 @@ namespace RESTfulBankAPI.Controllers
                 
                 return CreatedAtAction(nameof(GetAccount), new{id = createdAccount.Id}, createdAccount);
             }
-            
             catch(ArgumentException e)
             {
                 return BadRequest(e.Message);
@@ -50,9 +49,8 @@ namespace RESTfulBankAPI.Controllers
         {
             try
             {
-                return await _service.GetAccount(id);
+                return Ok(await _service.GetAccount(id));
             }
-
             catch (AccountNotFoundException e)
             {
                 return NotFound(e.Message);
@@ -73,12 +71,10 @@ namespace RESTfulBankAPI.Controllers
             {
                 return Ok($"new balance of ${await _service.Deposit(id, request)}");
             }
-            
             catch (AccountNotFoundException e)
             {
                 return NotFound(e.Message);
             }
-
             catch (NegativeAmountException e)
             {
                 return BadRequest(e.Message);
@@ -99,12 +95,10 @@ namespace RESTfulBankAPI.Controllers
             {
                 return Ok($"new balance of ${await _service.Withdraw(id, request)}");
             }
-
             catch (AccountNotFoundException e)
             {
                 return NotFound(e.Message);
             }
-
             catch (Exception e) when (e is InsufficientFundsException or NegativeAmountException)
             {
                 return BadRequest(e.Message);
@@ -125,12 +119,10 @@ namespace RESTfulBankAPI.Controllers
             {
                 return Ok($"new receiver balance of ${await _service.Transfer(request)}");
             }
-
             catch (AccountNotFoundException e)
             {
                 return NotFound(e.Message);
             }
-
             catch (Exception e) when (e is InsufficientFundsException or NegativeAmountException)
             {
                 return BadRequest(e.Message);

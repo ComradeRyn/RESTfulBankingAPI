@@ -8,6 +8,7 @@ namespace RESTfulBankAPI.Services;
 public class AccountsService
 {
     private readonly AccountContext _context;
+    private readonly Regex _regexp = new Regex(@"([A-Z][a-z]+)\s(([A-Z][a-z]*)\s)?([A-Z][a-z]+)");
 
     public AccountsService(AccountContext context)
     {
@@ -16,21 +17,24 @@ public class AccountsService
 
     public async Task<Account> GetAccount(string id)
     {
-        var queriedAccount = await _context.Accounts.FindAsync(id);
-
-        if (queriedAccount is null)
+        var account = await _context.Accounts.FindAsync(id);
+        if (account is null)
         {
             throw new AccountNotFoundException("No user found with given id", nameof(id));
         }
         
-        return queriedAccount;
+        return account;
     }
 
     public async Task<Account> CreateAccount(CreationRequest request)
     {
         ValidateName(request.Name);
 
-        var newAccount = new Account(){HolderName = request.Name};
+        var newAccount = new Account
+        {
+            Id = Guid.NewGuid().ToString(),
+            HolderName = request.Name,
+        };
         
         await _context.Accounts.AddAsync(newAccount);
         await _context.SaveChangesAsync();
@@ -40,29 +44,29 @@ public class AccountsService
 
     public async Task<decimal> Deposit(string id, ChangeBalanceRequest request)
     {
-        var queriedAccount = await GetAccount(id);
+        var account = await GetAccount(id);
         
         ValidatePositiveAmount(request.Amount);
         
-        queriedAccount.Balance += request.Amount;
+        account.Balance += request.Amount;
         
         await _context.SaveChangesAsync();
         
-        return queriedAccount.Balance;
+        return account.Balance;
     }
 
     public async Task<decimal> Withdraw(string id, ChangeBalanceRequest request)
     {
-        var queriedAccount = await GetAccount(id);
+        var account = await GetAccount(id);
         
         ValidatePositiveAmount(request.Amount);
-        ValidateSufficientBalance(queriedAccount.Balance, request.Amount);
+        ValidateSufficientBalance(account.Balance, request.Amount);
         
-        queriedAccount.Balance -= request.Amount;
-        
+        account.Balance -= request.Amount;
+
         await _context.SaveChangesAsync();
         
-        return queriedAccount.Balance;
+        return account.Balance;
     }
     
     public async Task<decimal> Transfer(TransferRequest request)
@@ -81,14 +85,12 @@ public class AccountsService
         return receiver.Balance;
     }
     
-    private void ValidateName(string accountName)
+    private void ValidateName(string name)
     {
-        var nameRegex = new Regex(@"^([^\d\s]+\s?)+$");
-
-        if (!nameRegex.IsMatch(accountName))
+        if (!_regexp.IsMatch(name))
         {
-            throw new ArgumentException("Name must be in the format of <first name> <second name> <...> <last name>", 
-                nameof(accountName));
+            throw new ArgumentException("Name must be in the format of <first name> <Middle name (optional)> <last name>", 
+                nameof(name));
         }
     }
 
