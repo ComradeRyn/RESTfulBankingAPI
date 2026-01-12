@@ -1,4 +1,5 @@
-﻿using RESTfulBankAPI.Models;
+﻿using System.Text.RegularExpressions;
+using RESTfulBankAPI.Models;
 using RESTfulBankAPI.Models.Records;
 using RESTfulBankAPI.Exceptions;
 
@@ -13,9 +14,9 @@ public class AccountsService
         _context = context;
     }
 
-    public Account GetAccount(string id)
+    public async Task<Account> GetAccount(string id)
     {
-        var queriedAccount = _context.Accounts.Find(id);
+        var queriedAccount = await _context.Accounts.FindAsync(id);
 
         if (queriedAccount == null)
         {
@@ -25,57 +26,59 @@ public class AccountsService
         return queriedAccount;
     }
 
-    public Account CreateAccount(CreationRequest request)
+    public async Task<Account> CreateAccount(CreationRequest request)
     {
         if (!ValidateName(request.Name))
         {
-            throw new ArgumentException("Name must be at most 50 characters and " +
-                                        "in the format of <first name> <second name> <...> <last name>", 
-                nameof(request));
+            throw new ArgumentException("in the format of <first name> <second name> <...> <last name>", 
+                                        nameof(request));
         }
 
         var newAccount = new Account(){HolderName = request.Name};
-        _context.Accounts.Add(newAccount);
-        _context.SaveChanges();
+        
+        await _context.Accounts.AddAsync(newAccount);
+        await _context.SaveChangesAsync();
         
         return newAccount;
     }
 
-    public decimal Deposit(string id, ChangeBalanceRequest request)
+    public async Task<decimal> Deposit(string id, ChangeBalanceRequest request)
     {
-        var queriedAccount = GetAccount(id);
-        PreformDeposit(queriedAccount, request.Amount);
+        var queriedAccount = await GetAccount(id);
+        
+        await PreformDeposit(queriedAccount, request.Amount);
         
         return queriedAccount.Balance;
     }
 
-    public decimal Withdraw(string id, ChangeBalanceRequest request)
+    public async Task<decimal> Withdraw(string id, ChangeBalanceRequest request)
     {
-        var queriedAccount = GetAccount(id);
-        PreformWithdraw(queriedAccount, request.Amount);
+        var queriedAccount = await GetAccount(id);
+        
+        await PreformWithdraw(queriedAccount, request.Amount);
         
         return queriedAccount.Balance;
     }
 
-    public decimal Transfer(TransferRequest request)
+    public async Task<decimal> Transfer(TransferRequest request)
     {
-        var receiver = GetAccount(request.ReceiverId);
-        var sender = GetAccount(request.SenderId);
+        var receiver = await GetAccount(request.ReceiverId);
+        var sender = await GetAccount(request.SenderId);
 
-        PreformWithdraw(sender, request.Amount);
-        PreformDeposit(receiver, request.Amount);
+        await PreformWithdraw(sender, request.Amount);
+        await PreformDeposit(receiver, request.Amount);
 
         return receiver.Balance;
     }
     
     private bool ValidateName(string accountName)
     {
-        var nameTokens = accountName.Split(" ");
+        var nameRegex = new Regex(@"^([^\d\s]+\s?)+$");
         
-        return accountName.Length <= 50 && nameTokens.All(name => name.All(char.IsLetter) && name != "");
+        return nameRegex.IsMatch(accountName);
     }
 
-    private void PreformDeposit(Account account, decimal amount)
+    private async Task PreformDeposit(Account account, decimal amount)
     {
         if (amount <= 0)
         {
@@ -83,10 +86,11 @@ public class AccountsService
         }
         
         account.Balance += amount;
-        _context.SaveChanges();
+        
+        await _context.SaveChangesAsync();
     }
 
-    private void PreformWithdraw(Account account, decimal amount)
+    private async Task PreformWithdraw(Account account, decimal amount)
     {
         if (amount <= 0)
         {
@@ -100,6 +104,7 @@ public class AccountsService
         }
 
         account.Balance -= amount;
-        _context.SaveChanges();
+        
+        await _context.SaveChangesAsync();
     }
 }
