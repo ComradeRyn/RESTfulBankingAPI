@@ -8,7 +8,6 @@ namespace RESTfulBankAPI.Services;
 public class AccountsService
 {
     private const string NameRegexp = @"([A-Z][a-z]+)\s(([A-Z][a-z]*)\s)?([A-Z][a-z]+)";
-    
     private readonly AccountContext _context;
 
     public AccountsService(AccountContext context)
@@ -88,7 +87,7 @@ public class AccountsService
     
     private void ValidateName(string name)
     {
-        if (Regex.IsMatch(NameRegexp, name))
+        if (!Regex.IsMatch(name, NameRegexp))
         {
             throw new ArgumentException("Name must be in the format of <first name> <middle name> <last name>", 
                 nameof(name));
