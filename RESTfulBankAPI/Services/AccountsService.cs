@@ -7,8 +7,9 @@ namespace RESTfulBankAPI.Services;
 
 public class AccountsService
 {
+    private const string NameRegexp = @"([A-Z][a-z]+)\s(([A-Z][a-z]*)\s)?([A-Z][a-z]+)";
+    
     private readonly AccountContext _context;
-    private readonly Regex _nameRegexp = new Regex(@"([A-Z][a-z]+)\s(([A-Z][a-z]*)\s)?([A-Z][a-z]+)");
 
     public AccountsService(AccountContext context)
     {
@@ -42,7 +43,7 @@ public class AccountsService
         return newAccount;
     }
 
-    public async Task<decimal> Deposit(string id, ChangeBalanceRequest request)
+    public async Task<UpdateBalanceResponse> Deposit(string id, ChangeBalanceRequest request)
     {
         var account = await GetAccount(id);
         
@@ -52,10 +53,10 @@ public class AccountsService
         
         await _context.SaveChangesAsync();
         
-        return account.Balance;
+        return new UpdateBalanceResponse(account.Balance);
     }
 
-    public async Task<decimal> Withdraw(string id, ChangeBalanceRequest request)
+    public async Task<UpdateBalanceResponse> Withdraw(string id, ChangeBalanceRequest request)
     {
         var account = await GetAccount(id);
         
@@ -66,10 +67,10 @@ public class AccountsService
 
         await _context.SaveChangesAsync();
         
-        return account.Balance;
+        return new UpdateBalanceResponse(account.Balance);
     }
     
-    public async Task<decimal> Transfer(TransferRequest request)
+    public async Task<UpdateBalanceResponse> Transfer(TransferRequest request)
     {
         var receiver = await GetAccount(request.ReceiverId);
         var sender = await GetAccount(request.SenderId);
@@ -82,14 +83,14 @@ public class AccountsService
         
         await _context.SaveChangesAsync();
 
-        return receiver.Balance;
+        return new UpdateBalanceResponse(receiver.Balance);
     }
     
     private void ValidateName(string name)
     {
-        if (!_nameRegexp.IsMatch(name))
+        if (Regex.IsMatch(NameRegexp, name))
         {
-            throw new ArgumentException("Name must be in the format of <first name> <Middle name (optional)> <last name>", 
+            throw new ArgumentException("Name must be in the format of <first name> <middle name> <last name>", 
                 nameof(name));
         }
     }
