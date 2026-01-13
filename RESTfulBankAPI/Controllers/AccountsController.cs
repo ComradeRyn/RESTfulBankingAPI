@@ -64,10 +64,10 @@ namespace RESTfulBankAPI.Controllers
         /// <param name="request">A record which contains a decimal Amount that will be deposited</param>
         /// <returns>A response object containing the new account balance</returns>
         [HttpPost("{id}/deposits")]
-        [ProducesResponseType(typeof(BalanceUpdateResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UpdateBalanceResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<BalanceUpdateResponse>> PostDeposit(string id, ChangeBalanceRequest request)
+        public async Task<ActionResult<UpdateBalanceResponse>> PostDeposit(string id, ChangeBalanceRequest request)
         {
             try
             {
@@ -90,10 +90,10 @@ namespace RESTfulBankAPI.Controllers
         /// <param name="request">A record which contains a decimal Amount that will be withdrawn</param>
         /// <returns>A response object containing the new account balance</returns>
         [HttpPost("{id}/withdraws")]
-        [ProducesResponseType(typeof(BalanceUpdateResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UpdateBalanceResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<BalanceUpdateResponse>> PostWithdraw(string id, ChangeBalanceRequest request)
+        public async Task<ActionResult<UpdateBalanceResponse>> PostWithdraw(string id, ChangeBalanceRequest request)
         {
             try
             {
@@ -116,10 +116,10 @@ namespace RESTfulBankAPI.Controllers
         /// account, along with the decimal amount that will be transferred</param>
         /// <returns>A response object containing the receiver's new account balance</returns>
         [HttpPost("transfers")]
-        [ProducesResponseType(typeof(BalanceUpdateResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UpdateBalanceResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<BalanceUpdateResponse>> PostTransfer(TransferRequest request)
+        public async Task<ActionResult<UpdateBalanceResponse>> PostTransfer(TransferRequest request)
         {
             try
             {

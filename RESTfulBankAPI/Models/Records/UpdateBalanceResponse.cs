@@ -1,3 +1,3 @@
 ﻿namespace RESTfulBankAPI.Models.Records;
 
-public record BalanceUpdateResponse(decimal Balance);
+public record UpdateBalanceResponse(decimal Balance);
