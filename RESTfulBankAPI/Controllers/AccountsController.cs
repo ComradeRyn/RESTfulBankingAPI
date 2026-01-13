@@ -23,7 +23,8 @@ namespace RESTfulBankAPI.Controllers
         /// <param name="request">A record which contains a string Name for the new account</param>
         /// <returns>The information of the generated account</returns>
         [HttpPost]
-        [Produces("application/json")]
+        [ProducesResponseType(typeof(ActionResult<Account>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Account>> PostAccount(CreationRequest request)
         {
             try
@@ -44,7 +45,8 @@ namespace RESTfulBankAPI.Controllers
         /// <param name="id">The unique identification for the requested account</param>
         /// <returns>The account information corresponding to the id</returns>
         [HttpGet("{id}")]
-        [Produces("application/json")]
+        [ProducesResponseType(typeof(ActionResult<Account>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<Account>> GetAccount(string id)
         {
             try
@@ -64,7 +66,9 @@ namespace RESTfulBankAPI.Controllers
         /// <param name="request">A record which contains a decimal Amount that will be deposited</param>
         /// <returns>A message stating the new account balance</returns>
         [HttpPost("{id}/deposits")]
-        [Produces("application/json")]
+        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PostDeposit(string id, ChangeBalanceRequest request)
         {
             try
@@ -88,7 +92,9 @@ namespace RESTfulBankAPI.Controllers
         /// <param name="request">A record which contains a decimal Amount that will be withdrawn</param>
         /// <returns>A message stating the new account balance</returns>
         [HttpPost("{id}/withdraws")]
-        [Produces("application/json")]
+        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PostWithdraw(string id, ChangeBalanceRequest request)
         {
             try
@@ -112,7 +118,9 @@ namespace RESTfulBankAPI.Controllers
         /// account, along with the decimal amount that will be transferred</param>
         /// <returns>A message saying the receiver's new account balance</returns>
         [HttpPost("transfers")]
-        [Produces("application/json")]
+        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PostTransfer(TransferRequest request)
         {
             try
