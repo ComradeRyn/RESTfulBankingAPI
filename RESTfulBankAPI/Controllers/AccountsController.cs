@@ -29,9 +29,7 @@ namespace RESTfulBankAPI.Controllers
         {
             try
             {
-                var createdAccount = await _service.CreateAccount(request);
-                
-                return CreatedAtAction(nameof(GetAccount), new{id = createdAccount.Id}, createdAccount);
+                return Ok(await _service.CreateAccount(request));
             }
             catch(ArgumentException e)
             {
@@ -66,14 +64,14 @@ namespace RESTfulBankAPI.Controllers
         /// <param name="request">A record which contains a decimal Amount that will be deposited</param>
         /// <returns>A response object containing the new account balance</returns>
         [HttpPost("{id}/deposits")]
-        [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BalanceUpdateResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Response>> PostDeposit(string id, ChangeBalanceRequest request)
+        public async Task<ActionResult<BalanceUpdateResponse>> PostDeposit(string id, ChangeBalanceRequest request)
         {
             try
             {
-                return Ok(new Response(await _service.Deposit(id, request)));
+                return Ok(await _service.Deposit(id, request));
             }
             catch (AccountNotFoundException e)
             {
@@ -92,14 +90,14 @@ namespace RESTfulBankAPI.Controllers
         /// <param name="request">A record which contains a decimal Amount that will be withdrawn</param>
         /// <returns>A response object containing the new account balance</returns>
         [HttpPost("{id}/withdraws")]
-        [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BalanceUpdateResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Response>> PostWithdraw(string id, ChangeBalanceRequest request)
+        public async Task<ActionResult<BalanceUpdateResponse>> PostWithdraw(string id, ChangeBalanceRequest request)
         {
             try
             {
-                return Ok(new Response(await _service.Withdraw(id, request)));
+                return Ok(await _service.Withdraw(id, request));
             }
             catch (AccountNotFoundException e)
             {
@@ -118,14 +116,14 @@ namespace RESTfulBankAPI.Controllers
         /// account, along with the decimal amount that will be transferred</param>
         /// <returns>A response object containing the receiver's new account balance</returns>
         [HttpPost("transfers")]
-        [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BalanceUpdateResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Response>> PostTransfer(TransferRequest request)
+        public async Task<ActionResult<BalanceUpdateResponse>> PostTransfer(TransferRequest request)
         {
             try
             {
-                return Ok(new Response(await _service.Transfer(request)));
+                return Ok(await _service.Transfer(request));
             }
             catch (AccountNotFoundException e)
             {
